@@ -1,0 +1,322 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>展示页导航 · edge_page</title>
+<meta name="description" content="edge_page 项目导航中心，一站式跳转到各个展示页面。">
+<style>
+  :root{
+    --bg:#ffffff;
+    --bg-soft:#fbfbfd;
+    --bg-card:#f5f5f7;
+    --ink:#1d1d1f;
+    --ink-soft:#6e6e73;
+    --ink-faint:#86868b;
+    --line:#d2d2d7;
+    --blue:#0071e3;
+    --blue-hover:#0077ed;
+    --green:#34c759;
+    --orange:#ff9f0a;
+    --purple:#5e5ce6;
+    --radius:18px;
+    --radius-lg:28px;
+    --shadow:0 4px 24px rgba(0,0,0,.06);
+    --shadow-lg:0 20px 60px rgba(0,0,0,.08);
+    --maxw:1120px;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html{scroll-behavior:smooth;-webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale}
+  body{
+    font-family:"SF Pro Display","SF Pro Text",-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif;
+    background:var(--bg);
+    color:var(--ink);
+    line-height:1.5;
+    font-size:17px;
+    letter-spacing:-.01em;
+  }
+  a{color:inherit;text-decoration:none}
+  img{max-width:100%;display:block}
+  .wrap{max-width:var(--maxw);margin:0 auto;padding:0 22px}
+
+  /* ---------- Nav ---------- */
+  header{
+    position:sticky;top:0;z-index:100;
+    background:rgba(255,255,255,.72);
+    backdrop-filter:saturate(180%) blur(20px);
+    -webkit-backdrop-filter:saturate(180%) blur(20px);
+    border-bottom:1px solid rgba(0,0,0,.06);
+  }
+  nav{display:flex;align-items:center;justify-content:space-between;height:52px;max-width:1024px;margin:0 auto;padding:0 22px}
+  .brand{display:flex;align-items:center;gap:9px;font-size:18px;font-weight:600;letter-spacing:-.02em}
+  .logo{width:28px;height:28px;border-radius:7px;background:linear-gradient(135deg,#0a84ff,#5e5ce6);display:flex;align-items:center;justify-content:center;color:#fff;font-size:14px;font-weight:700}
+  .nav-meta{font-size:13px;color:var(--ink-faint)}
+  .nav-meta a{color:var(--blue)}
+  .nav-meta a:hover{text-decoration:underline}
+
+  /* ---------- Hero ---------- */
+  .hero{padding:80px 0 40px;text-align:center}
+  .eyebrow{display:inline-block;font-size:14px;color:var(--blue);font-weight:500;margin-bottom:20px}
+  h1.hero-title{font-size:clamp(38px,6vw,68px);line-height:1.06;font-weight:600;letter-spacing:-.035em;max-width:880px;margin:0 auto 20px}
+  .hero-title .accent{background:linear-gradient(90deg,#0a84ff,#5e5ce6);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
+  .hero-sub{font-size:clamp(18px,2vw,22px);color:var(--ink-soft);max-width:620px;margin:0 auto 32px;line-height:1.45}
+
+  /* ---------- Search ---------- */
+  .search-wrap{max-width:480px;margin:0 auto 14px;position:relative}
+  .search-wrap svg{position:absolute;left:16px;top:50%;transform:translateY(-50%);width:18px;height:18px;color:var(--ink-faint)}
+  #search{
+    width:100%;font-size:16px;font-family:inherit;
+    padding:13px 18px 13px 46px;border-radius:980px;
+    border:1px solid var(--line);background:var(--bg-card);
+    color:var(--ink);outline:none;transition:all .2s;
+  }
+  #search:focus{border-color:var(--blue);background:#fff;box-shadow:0 0 0 4px rgba(0,113,227,.12)}
+  #search::placeholder{color:var(--ink-faint)}
+
+  /* ---------- Filter chips ---------- */
+  .filters{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin-top:24px}
+  .chip{
+    font-size:14px;font-family:inherit;cursor:pointer;
+    padding:8px 18px;border-radius:980px;
+    border:1px solid var(--line);background:#fff;color:var(--ink-soft);
+    transition:all .2s;
+  }
+  .chip:hover{border-color:var(--ink-soft);color:var(--ink)}
+  .chip.active{background:var(--ink);border-color:var(--ink);color:#fff}
+
+  /* ---------- Grid ---------- */
+  .grid-section{padding:48px 0 100px}
+  .grid-head{display:flex;align-items:baseline;justify-content:space-between;margin-bottom:28px;flex-wrap:wrap;gap:8px}
+  .grid-head h2{font-size:22px;font-weight:600;letter-spacing:-.02em}
+  .grid-head .count{font-size:14px;color:var(--ink-faint)}
+  .grid{
+    display:grid;grid-template-columns:repeat(3,1fr);gap:18px;
+  }
+
+  .card{
+    position:relative;background:var(--bg-card);border-radius:var(--radius-lg);
+    padding:30px 28px;display:flex;flex-direction:column;min-height:220px;
+    transition:transform .3s ease, box-shadow .3s ease;
+    overflow:hidden;
+  }
+  .card:hover{transform:translateY(-4px);box-shadow:var(--shadow-lg)}
+  .card-icon{
+    width:48px;height:48px;border-radius:13px;background:#fff;
+    display:flex;align-items:center;justify-content:center;margin-bottom:20px;
+    box-shadow:0 2px 8px rgba(0,0,0,.05);
+  }
+  .card-icon svg{width:24px;height:24px}
+  .card-title{font-size:20px;font-weight:600;letter-spacing:-.02em;margin-bottom:8px;display:flex;align-items:center;gap:8px}
+  .card-desc{font-size:14.5px;color:var(--ink-soft);line-height:1.5;flex:1}
+  .card-foot{display:flex;align-items:center;justify-content:space-between;margin-top:22px;padding-top:18px;border-top:1px solid rgba(0,0,0,.07)}
+  .card-tag{font-size:12px;color:var(--ink-faint);font-family:"SF Mono",Menlo,monospace}
+  .card-go{font-size:14px;color:var(--blue);font-weight:500;display:flex;align-items:center;gap:4px;transition:gap .2s}
+  .card:hover .card-go{gap:8px}
+
+  /* status pill on card */
+  .pill{font-size:11px;font-weight:500;padding:3px 9px;border-radius:980px;line-height:1.4}
+  .pill.live{background:rgba(52,199,89,.14);color:#1d8a3f}
+  .pill.soon{background:rgba(255,149,10,.14);color:#c46a00}
+  .pill.draft{background:rgba(0,0,0,.06);color:var(--ink-soft)}
+
+  /* empty state */
+  .empty{text-align:center;padding:80px 20px;color:var(--ink-faint);grid-column:1/-1}
+  .empty svg{width:42px;height:42px;margin:0 auto 16px;opacity:.5}
+
+  /* ---------- Footer ---------- */
+  footer{background:var(--bg-soft);border-top:1px solid rgba(0,0,0,.07);padding:36px 0}
+  .foot-inner{max-width:var(--maxw);margin:0 auto;padding:0 22px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px}
+  .foot-inner p{font-size:13px;color:var(--ink-faint)}
+  .foot-inner .hint{font-size:13px;color:var(--ink-soft)}
+  .foot-inner .hint code{font-family:"SF Mono",Menlo,monospace;background:#fff;border:1px solid var(--line);padding:2px 7px;border-radius:6px;font-size:12px}
+
+  /* ---------- Reveal ---------- */
+  .reveal{opacity:0;transform:translateY(20px);transition:opacity .6s ease,transform .6s ease}
+  .reveal.in{opacity:1;transform:none}
+
+  /* ---------- Responsive ---------- */
+  @media (max-width:900px){
+    .grid{grid-template-columns:repeat(2,1fr)}
+    .nav-meta{display:none}
+  }
+  @media (max-width:560px){
+    .grid{grid-template-columns:1fr}
+    .hero{padding:56px 0 30px}
+  }
+</style>
+</head>
+<body>
+
+<!-- ============ NAV ============ -->
+<header>
+  <nav>
+    <a href="index.html" class="brand"><span class="logo">导</span>展示页导航</a>
+    <div class="nav-meta">项目导航中心 · <a href="zzz_page/index.html">极智轩 API</a></div>
+  </nav>
+</header>
+
+<!-- ============ HERO ============ -->
+<section class="hero">
+  <div class="wrap">
+    <span class="eyebrow">edge_page · 项目导航</span>
+    <h1 class="hero-title">所有展示页，<br><span class="accent">一处直达</span></h1>
+    <p class="hero-sub">这里是各个展示页面的入口。点击任意卡片即可跳转，新增页面时在下方网格里加一张卡片即可。</p>
+
+    <div class="search-wrap">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3" stroke-linecap="round"/></svg>
+      <input id="search" type="text" placeholder="搜索页面名称或关键词…" autocomplete="off">
+    </div>
+
+    <div class="filters" id="filters">
+      <button class="chip active" data-cat="all">全部</button>
+      <button class="chip" data-cat="product">产品落地页</button>
+      <button class="chip" data-cat="tool">工具 / 应用</button>
+      <button class="chip" data-cat="doc">文档 / 展示</button>
+      <button class="chip" data-cat="lab">实验 / Demo</button>
+    </div>
+  </div>
+</section>
+
+<!-- ============ GRID ============ -->
+<section class="grid-section">
+  <div class="wrap">
+    <div class="grid-head">
+      <h2>页面索引</h2>
+      <span class="count" id="count"></span>
+    </div>
+    <div class="grid" id="grid">
+
+      <!-- ====== 卡片 1：极智轩 API（已上线）====== -->
+      <a class="card reveal" href="zzz_page/index.html" data-cat="product" data-keywords="极智轩 api 中转站 大模型 openai gpt claude gemini">
+        <div class="card-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="#0a84ff" stroke-width="1.8"><path d="M13 2L3 14h7l-1 8 10-12h-7l1-8z" stroke-linejoin="round"/></svg>
+        </div>
+        <div class="card-title">极智轩 API <span class="pill live">已上线</span></div>
+        <div class="card-desc">兼容 OpenAI 格式的 AI 接口聚合服务落地页，Apple 风格展示，含特性、模型、价格与服务状态。</div>
+        <div class="card-foot">
+          <span class="card-tag">zzz_page/</span>
+          <span class="card-go">访问 →</span>
+        </div>
+      </a>
+
+      <!-- ====== 占位卡片：复制这里新增页面 ======
+      <a class="card reveal" href="新页面/index.html" data-cat="tool" data-keywords="关键词1 关键词2">
+        <div class="card-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="#5e5ce6" stroke-width="1.8"><circle cx="12" cy="12" r="9"/></svg>
+        </div>
+        <div class="card-title">页面名称 <span class="pill live">已上线</span></div>
+        <div class="card-desc">一句话描述这个页面是做什么的。</div>
+        <div class="card-foot">
+          <span class="card-tag">文件夹/</span>
+          <span class="card-go">访问 →</span>
+        </div>
+      </a>
+      ====== 占位结束 ====== -->
+
+      <!-- ====== 卡片 2：占位 · 工具类 ====== -->
+      <div class="card reveal" data-cat="tool" data-keywords="工具 待开发">
+        <div class="card-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="#5e5ce6" stroke-width="1.8"><path d="M14.7 6.3a4 4 0 015.4 5.4l-9.2 9.2-5.4.6.6-5.4 9.2-9.2z" stroke-linejoin="round"/></svg>
+        </div>
+        <div class="card-title">待开发页面 <span class="pill soon">即将上线</span></div>
+        <div class="card-desc">这是一个占位卡片，演示工具类页面的样式。开发完成后把 div 改成 a 并填入链接即可。</div>
+        <div class="card-foot">
+          <span class="card-tag">—</span>
+          <span class="card-go" style="color:var(--ink-faint)">敬请期待</span>
+        </div>
+      </div>
+
+      <!-- ====== 卡片 3：占位 · 文档类 ====== -->
+      <div class="card reveal" data-cat="doc" data-keywords="文档 待开发">
+        <div class="card-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="#34c759" stroke-width="1.8"><path d="M4 4h16v16H4z" stroke-linejoin="round"/><path d="M8 9h8M8 13h8M8 17h5" stroke-linecap="round"/></svg>
+        </div>
+        <div class="card-title">待开发页面 <span class="pill soon">即将上线</span></div>
+        <div class="card-desc">文档 / 展示类页面的占位。后续填入真实内容与跳转链接。</div>
+        <div class="card-foot">
+          <span class="card-tag">—</span>
+          <span class="card-go" style="color:var(--ink-faint)">敬请期待</span>
+        </div>
+      </div>
+
+      <!-- ====== 卡片 4：占位 · 实验类 ====== -->
+      <div class="card reveal" data-cat="lab" data-keywords="实验 demo 待开发">
+        <div class="card-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="#ff9f0a" stroke-width="1.8"><path d="M9 3h6M10 3v6l-5 9a2 2 0 002 3h10a2 2 0 002-3l-5-9V3" stroke-linejoin="round"/></svg>
+        </div>
+        <div class="card-title">待开发页面 <span class="pill draft">草稿</span></div>
+        <div class="card-desc">实验 / Demo 类页面的占位。用来放各种原型与小测试。</div>
+        <div class="card-foot">
+          <span class="card-tag">—</span>
+          <span class="card-go" style="color:var(--ink-faint)">敬请期待</span>
+        </div>
+      </div>
+
+      <div class="empty" id="empty" style="display:none">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3" stroke-linecap="round"/></svg>
+        <p>没有找到匹配的页面</p>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- ============ FOOTER ============ -->
+<footer>
+  <div class="foot-inner">
+    <p>© 2024 edge_page · 项目导航中心</p>
+    <span class="hint">新增页面：复制网格中一张 <code>&lt;a class="card"&gt;</code> 卡片，改链接即可</span>
+  </div>
+</footer>
+
+<script>
+  // ---- Scroll reveal ----
+  const io = new IntersectionObserver((entries)=>{
+    entries.forEach(e=>{
+      if(e.isIntersecting){ e.target.classList.add('in'); io.unobserve(e.target); }
+    });
+  },{threshold:0.1, rootMargin:"0px 0px -30px 0px"});
+  document.querySelectorAll('.reveal').forEach((el,i)=>{
+    el.style.transitionDelay = (i%3 * 70) + 'ms';
+    io.observe(el);
+  });
+
+  // ---- Filter + Search ----
+  const grid = document.getElementById('grid');
+  const cards = Array.from(grid.querySelectorAll('.card'));
+  const empty = document.getElementById('empty');
+  const countEl = document.getElementById('count');
+  const search = document.getElementById('search');
+  let activeCat = 'all';
+
+  function applyFilter(){
+    const q = search.value.trim().toLowerCase();
+    let visible = 0;
+    cards.forEach(card=>{
+      const cat = card.dataset.cat;
+      const kw = (card.dataset.keywords || '').toLowerCase();
+      const text = card.textContent.toLowerCase();
+      const matchCat = activeCat === 'all' || cat === activeCat;
+      const matchQ = !q || kw.includes(q) || text.includes(q);
+      const show = matchCat && matchQ;
+      card.style.display = show ? '' : 'none';
+      if(show) visible++;
+    });
+    empty.style.display = visible === 0 ? 'block' : 'none';
+    countEl.textContent = `共 ${visible} 个页面`;
+  }
+
+  document.getElementById('filters').addEventListener('click', e=>{
+    const btn = e.target.closest('.chip');
+    if(!btn) return;
+    document.querySelectorAll('.chip').forEach(c=>c.classList.remove('active'));
+    btn.classList.add('active');
+    activeCat = btn.dataset.cat;
+    applyFilter();
+  });
+
+  search.addEventListener('input', applyFilter);
+  applyFilter();
+</script>
+</body>
+</html>
