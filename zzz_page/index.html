@@ -1,0 +1,611 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Keanu API — 稳定、快速的 AI 接口聚合服务</title>
+<meta name="description" content="Keanu API 为开发者提供兼容 OpenAI 格式的 AI 接口聚合服务，一个密钥即可访问 GPT、Claude、Gemini 等主流大模型。">
+<style>
+  :root{
+    --bg:#ffffff;
+    --bg-soft:#fbfbfd;
+    --bg-card:#f5f5f7;
+    --ink:#1d1d1f;
+    --ink-soft:#6e6e73;
+    --ink-faint:#86868b;
+    --line:#d2d2d7;
+    --blue:#0071e3;
+    --blue-hover:#0077ed;
+    --green:#34c759;
+    --radius:18px;
+    --radius-lg:28px;
+    --shadow:0 4px 24px rgba(0,0,0,.06);
+    --shadow-lg:0 20px 60px rgba(0,0,0,.08);
+    --maxw:1120px;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html{scroll-behavior:smooth;-webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale}
+  body{
+    font-family:"SF Pro Display","SF Pro Text",-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif;
+    background:var(--bg);
+    color:var(--ink);
+    line-height:1.5;
+    font-size:17px;
+    letter-spacing:-.01em;
+  }
+  a{color:inherit;text-decoration:none}
+  img{max-width:100%;display:block}
+  .wrap{max-width:var(--maxw);margin:0 auto;padding:0 22px}
+
+  /* ---------- Nav ---------- */
+  header{
+    position:sticky;top:0;z-index:100;
+    background:rgba(255,255,255,.72);
+    backdrop-filter:saturate(180%) blur(20px);
+    -webkit-backdrop-filter:saturate(180%) blur(20px);
+    border-bottom:1px solid rgba(0,0,0,.06);
+  }
+  nav{display:flex;align-items:center;justify-content:space-between;height:52px;max-width:1024px;margin:0 auto;padding:0 22px}
+  .brand{display:flex;align-items:center;gap:9px;font-size:18px;font-weight:600;letter-spacing:-.02em}
+  .logo{width:28px;height:28px;border-radius:7px;background:linear-gradient(135deg,#0a84ff,#5e5ce6);display:flex;align-items:center;justify-content:center;color:#fff;font-size:14px;font-weight:700}
+  .nav-links{display:flex;gap:34px;list-style:none}
+  .nav-links a{font-size:14px;color:var(--ink-soft);transition:color .2s}
+  .nav-links a:hover{color:var(--ink)}
+  .nav-cta{display:flex;align-items:center;gap:14px}
+  .nav-cta a.login{font-size:14px;color:var(--ink-soft)}
+  .nav-cta a.login:hover{color:var(--ink)}
+  .btn{display:inline-block;font-size:14px;font-weight:400;padding:7px 16px;border-radius:980px;transition:all .2s;cursor:pointer;border:none;font-family:inherit}
+  .btn-primary{background:var(--blue);color:#fff}
+  .btn-primary:hover{background:var(--blue-hover)}
+  .btn-ghost{background:rgba(0,0,0,.05);color:var(--ink)}
+  .btn-ghost:hover{background:rgba(0,0,0,.08)}
+  .menu-toggle{display:none;background:none;border:none;cursor:pointer;font-size:20px;color:var(--ink)}
+
+  /* ---------- Hero ---------- */
+  .hero{padding:88px 0 64px;text-align:center;background:var(--bg)}
+  .eyebrow{display:inline-block;font-size:14px;color:var(--blue);font-weight:500;margin-bottom:22px}
+  h1.hero-title{font-size:clamp(40px,6.4vw,76px);line-height:1.05;font-weight:600;letter-spacing:-.035em;max-width:920px;margin:0 auto 22px}
+  .hero-title .accent{background:linear-gradient(90deg,#0a84ff,#5e5ce6);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
+  .hero-sub{font-size:clamp(19px,2.2vw,23px);color:var(--ink-soft);max-width:680px;margin:0 auto 36px;font-weight:400;line-height:1.4}
+  .hero-cta{display:flex;gap:14px;justify-content:center;flex-wrap:wrap;margin-bottom:18px}
+  .hero-cta .btn{padding:13px 26px;font-size:16px}
+  .hero-note{font-size:13px;color:var(--ink-faint)}
+
+  /* ---------- Code mockup ---------- */
+  .mockup-wrap{margin:64px auto 0;max-width:920px;padding:0 14px}
+  .mockup{
+    background:#1d1d1f;border-radius:var(--radius-lg);overflow:hidden;
+    box-shadow:var(--shadow-lg);text-align:left;
+  }
+  .mockup-bar{display:flex;align-items:center;gap:8px;padding:13px 18px;background:rgba(255,255,255,.04);border-bottom:1px solid rgba(255,255,255,.07)}
+  .mockup-bar .dot{width:11px;height:11px;border-radius:50%}
+  .dot.r{background:#ff5f57}.dot.y{background:#febc2e}.dot.g{background:#28c840}
+  .mockup-bar .file{margin-left:10px;font-size:12px;color:#86868b;font-family:"SF Mono",Menlo,monospace}
+  .code{padding:26px 30px 30px;font-family:"SF Mono",Menlo,Consolas,monospace;font-size:14px;line-height:1.75;color:#e6e6e9;overflow-x:auto}
+  .code .k{color:#ff7ab2}      /* keyword */
+  .code .s{color:#a8e065}      /* string */
+  .code .c{color:#7d7d80;font-style:italic}  /* comment */
+  .code .v{color:#7fb3ff}      /* var/key */
+  .code .f{color:#ffd479}      /* func */
+  .code .u{color:#5ce0e6}      /* url */
+  .code .n{color:#d1bfef}      /* normal */
+
+  /* ---------- Stats ---------- */
+  .stats{background:var(--bg-soft);border-top:1px solid rgba(0,0,0,.05);border-bottom:1px solid rgba(0,0,0,.05);padding:56px 0}
+  .stats-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:30px}
+  .stat{text-align:center}
+  .stat-num{font-size:clamp(34px,4vw,52px);font-weight:600;letter-spacing:-.03em;background:linear-gradient(180deg,#1d1d1f,#5a5a5e);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
+  .stat-label{font-size:14px;color:var(--ink-soft);margin-top:6px;letter-spacing:.01em}
+
+  /* ---------- Section base ---------- */
+  section.block{padding:108px 0}
+  .sec-head{text-align:center;max-width:720px;margin:0 auto 64px}
+  .sec-eyebrow{font-size:14px;color:var(--blue);font-weight:500;margin-bottom:14px;display:block;letter-spacing:.01em}
+  .sec-title{font-size:clamp(32px,4.4vw,52px);font-weight:600;letter-spacing:-.03em;line-height:1.1;margin-bottom:18px}
+  .sec-desc{font-size:19px;color:var(--ink-soft);line-height:1.45}
+
+  /* ---------- Features ---------- */
+  .feat-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:18px}
+  .feat-card{
+    background:var(--bg-card);border-radius:var(--radius-lg);padding:38px 32px;
+    transition:transform .3s ease;
+  }
+  .feat-card:hover{transform:translateY(-3px)}
+  .feat-icon{width:46px;height:46px;border-radius:12px;background:#fff;display:flex;align-items:center;justify-content:center;margin-bottom:22px;box-shadow:0 2px 8px rgba(0,0,0,.05)}
+  .feat-icon svg{width:24px;height:24px}
+  .feat-card h3{font-size:22px;font-weight:600;letter-spacing:-.02em;margin-bottom:10px}
+  .feat-card p{font-size:15.5px;color:var(--ink-soft);line-height:1.5}
+
+  /* ---------- Models ---------- */
+  .models{background:var(--bg-soft)}
+  .model-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px}
+  .model{
+    background:#fff;border-radius:16px;padding:22px 20px;
+    border:1px solid rgba(0,0,0,.05);
+    transition:all .25s ease;
+  }
+  .model:hover{box-shadow:var(--shadow);border-color:transparent}
+  .model-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px}
+  .model-badge{width:36px;height:36px;border-radius:9px;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:15px;color:#fff}
+  .model-tag{font-size:11px;padding:3px 9px;border-radius:980px;background:rgba(52,199,89,.12);color:#1d8a3f;font-weight:500}
+  .model-tag.beta{background:rgba(255,149,0,.12);color:#c46a00}
+  .model-name{font-size:16px;font-weight:600;margin-bottom:3px;letter-spacing:-.01em}
+  .model-vendor{font-size:13px;color:var(--ink-faint);margin-bottom:12px}
+  .model-price{font-size:13px;color:var(--ink-soft);padding-top:12px;border-top:1px solid rgba(0,0,0,.06)}
+  .model-price strong{color:var(--ink);font-weight:600}
+
+  /* ---------- Pricing ---------- */
+  .price-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:18px;align-items:stretch}
+  .price-card{
+    background:#fff;border:1px solid var(--line);border-radius:var(--radius-lg);
+    padding:40px 34px;display:flex;flex-direction:column;position:relative;
+  }
+  .price-card.featured{border-color:var(--blue);box-shadow:0 0 0 1px var(--blue),var(--shadow)}
+  .price-tag-pop{position:absolute;top:-12px;left:50%;transform:translateX(-50%);background:var(--blue);color:#fff;font-size:12px;padding:5px 16px;border-radius:980px;font-weight:500}
+  .price-card h4{font-size:20px;font-weight:600;margin-bottom:8px;letter-spacing:-.01em}
+  .price-card .pitch{font-size:14px;color:var(--ink-soft);margin-bottom:26px;min-height:42px}
+  .price-amt{font-size:44px;font-weight:600;letter-spacing:-.03em;margin-bottom:4px}
+  .price-amt small{font-size:15px;font-weight:400;color:var(--ink-soft)}
+  .price-unit{font-size:14px;color:var(--ink-faint);margin-bottom:28px}
+  .price-card ul{list-style:none;margin-bottom:30px;flex:1}
+  .price-card li{font-size:14.5px;color:var(--ink-soft);padding:9px 0 9px 28px;position:relative;border-top:1px solid rgba(0,0,0,.05)}
+  .price-card li:first-child{border-top:none}
+  .price-card li::before{content:"";position:absolute;left:0;top:14px;width:16px;height:16px;background:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'><path d='M3.5 8.5l3 3 6-6.5' stroke='%230071e3' stroke-width='2' fill='none' stroke-linecap='round' stroke-linejoin='round'/></svg>") no-repeat center/contain}
+  .price-card .btn{width:100%;text-align:center;padding:13px}
+
+  /* ---------- Trust ---------- */
+  .trust{background:var(--bg-soft)}
+  .trust-grid{display:grid;grid-template-columns:1fr 1fr;gap:64px;align-items:center}
+  .trust-visual{
+    background:#1d1d1f;border-radius:var(--radius-lg);padding:34px;color:#fff;
+    box-shadow:var(--shadow-lg);
+  }
+  .status-row{display:flex;align-items:center;justify-content:space-between;padding:14px 0;border-bottom:1px solid rgba(255,255,255,.08)}
+  .status-row:last-child{border-bottom:none}
+  .status-name{display:flex;align-items:center;gap:11px;font-size:14.5px}
+  .status-dot{width:8px;height:8px;border-radius:50%;background:var(--green);box-shadow:0 0 0 3px rgba(52,199,89,.2)}
+  .status-time{font-size:13px;color:#86868b;font-family:"SF Mono",monospace}
+  .trust-visual h4{font-size:14px;color:#86868b;font-weight:500;margin-bottom:8px;text-transform:uppercase;letter-spacing:.08em}
+  .trust-visual .big{font-size:30px;font-weight:600;margin-bottom:24px;letter-spacing:-.02em}
+  .trust-points h3{font-size:clamp(28px,3.6vw,40px);font-weight:600;letter-spacing:-.03em;line-height:1.15;margin-bottom:20px}
+  .trust-points p{font-size:17px;color:var(--ink-soft);line-height:1.55;margin-bottom:26px}
+  .trust-list{list-style:none}
+  .trust-list li{display:flex;gap:14px;padding:14px 0;border-top:1px solid rgba(0,0,0,.07)}
+  .trust-list li:first-child{border-top:none}
+  .trust-list .ti{flex-shrink:0;width:26px;height:26px;border-radius:50%;background:rgba(0,113,227,.1);display:flex;align-items:center;justify-content:center;margin-top:1px}
+  .trust-list .ti svg{width:14px;height:14px}
+  .trust-list .tt{font-size:15.5px;font-weight:500;margin-bottom:2px}
+  .trust-list .td{font-size:14px;color:var(--ink-soft)}
+
+  /* ---------- CTA ---------- */
+  .cta-band{padding:90px 22px}
+  .cta-inner{max-width:880px;margin:0 auto;text-align:center;background:linear-gradient(135deg,#0a84ff 0%,#5e5ce6 100%);border-radius:var(--radius-lg);padding:72px 40px;color:#fff;box-shadow:0 20px 60px rgba(94,92,230,.25)}
+  .cta-inner h2{font-size:clamp(30px,4vw,46px);font-weight:600;letter-spacing:-.03em;margin-bottom:16px;line-height:1.1}
+  .cta-inner p{font-size:18px;opacity:.92;margin-bottom:32px}
+  .cta-inner .btn{background:#fff;color:#0a84ff;padding:13px 30px;font-size:16px;font-weight:500}
+  .cta-inner .btn:hover{transform:scale(1.02)}
+  .cta-inner .sub-note{font-size:13px;opacity:.8;margin-top:18px}
+
+  /* ---------- Footer ---------- */
+  footer{background:var(--bg-soft);border-top:1px solid rgba(0,0,0,.07);padding:56px 0 30px}
+  .foot-grid{display:grid;grid-template-columns:2fr 1fr 1fr 1fr;gap:40px;max-width:var(--maxw);margin:0 auto;padding:0 22px}
+  .foot-brand .brand{margin-bottom:14px}
+  .foot-brand p{font-size:13px;color:var(--ink-faint);max-width:280px;line-height:1.5}
+  .foot-col h5{font-size:13px;font-weight:600;margin-bottom:16px;color:var(--ink)}
+  .foot-col ul{list-style:none}
+  .foot-col li{margin-bottom:10px}
+  .foot-col a{font-size:13px;color:var(--ink-soft);transition:color .2s}
+  .foot-col a:hover{color:var(--ink)}
+  .foot-bottom{max-width:var(--maxw);margin:48px auto 0;padding:24px 22px 0;border-top:1px solid rgba(0,0,0,.08);display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px}
+  .foot-bottom p{font-size:12px;color:var(--ink-faint)}
+  .foot-bottom .legal{display:flex;gap:20px}
+  .foot-bottom .legal a{font-size:12px;color:var(--ink-faint)}
+  .foot-bottom .legal a:hover{color:var(--ink-soft)}
+
+  /* ---------- Reveal animation ---------- */
+  .reveal{opacity:0;transform:translateY(24px);transition:opacity .7s ease,transform .7s ease}
+  .reveal.in{opacity:1;transform:none}
+
+  /* ---------- Responsive ---------- */
+  @media (max-width:900px){
+    .nav-links{display:none}
+    .menu-toggle{display:block}
+    .stats-grid{grid-template-columns:repeat(2,1fr);gap:40px 20px}
+    .feat-grid{grid-template-columns:1fr}
+    .model-grid{grid-template-columns:repeat(2,1fr)}
+    .price-grid{grid-template-columns:1fr;max-width:440px;margin:0 auto}
+    .trust-grid{grid-template-columns:1fr;gap:40px}
+    .foot-grid{grid-template-columns:1fr 1fr;gap:32px}
+    section.block{padding:80px 0}
+  }
+  @media (max-width:520px){
+    .hero{padding:60px 0 40px}
+    .model-grid{grid-template-columns:1fr}
+    .foot-grid{grid-template-columns:1fr 1fr}
+    .nav-cta a.login{display:none}
+    .code{font-size:12.5px;padding:20px}
+  }
+</style>
+</head>
+<body>
+
+<!-- ============ NAV ============ -->
+<header>
+  <nav>
+    <a href="#" class="brand"><span class="logo">云</span>Keanu API</a>
+    <ul class="nav-links">
+      <li><a href="#features">产品特性</a></li>
+      <li><a href="#models">支持模型</a></li>
+      <li><a href="#pricing">价格</a></li>
+      <li><a href="#trust">可靠性</a></li>
+      <li><a href="#">文档</a></li>
+      <li><a href="#">状态</a></li>
+    </ul>
+    <div class="nav-cta">
+      <a href="#" class="login">登录</a>
+      <a href="#" class="btn btn-primary">开始使用</a>
+    </div>
+  </nav>
+</header>
+
+<!-- ============ HERO ============ -->
+<section class="hero">
+  <div class="wrap">
+    <span class="eyebrow">兼容 OpenAI 接口格式</span>
+    <h1 class="hero-title">一个密钥，<br><span class="accent">访问所有主流大模型</span></h1>
+    <p class="hero-sub">Keanu API 为开发者聚合了 GPT、Claude、Gemini 等数十种模型。改一行域名即可切换，按实际用量计费，毫秒级响应，99.9% 可用性。</p>
+    <div class="hero-cta">
+      <a href="#" class="btn btn-primary">免费注册 · 赠 $1 额度</a>
+      <a href="#" class="btn btn-ghost">查看文档 →</a>
+    </div>
+    <p class="hero-note">无需信用卡 · 5 分钟完成接入 · 中文工单支持</p>
+
+    <!-- Code mockup -->
+    <div class="mockup-wrap reveal">
+      <div class="mockup">
+        <div class="mockup-bar">
+          <span class="dot r"></span><span class="dot y"></span><span class="dot g"></span>
+          <span class="file">quickstart.py</span>
+        </div>
+        <pre class="code"><span class="k">from</span> openai <span class="k">import</span> OpenAI
+
+<span class="c"># 只需替换 base_url 和 api_key，其余代码原样保留</span>
+client = OpenAI(
+    api_key=<span class="s">"yb-sk-7f3a...c92e"</span>,
+    base_url=<span class="s">"https://api.yunqiao.dev/v1"</span>
+)
+
+resp = client.chat.completions.<span class="f">create</span>(
+    model=<span class="s">"claude-3-5-sonnet-20241022"</span>,
+    messages=[{<span class="v">"role"</span>: <span class="s">"user"</span>, <span class="v">"content"</span>: <span class="s">"用一句话解释量子纠缠"</span>}]
+)
+<span class="f">print</span>(resp.choices[<span class="v">0</span>].message.content)
+<span class="c"># → 两个粒子无论相距多远，状态都会即时联动的现象。</span></pre>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ STATS ============ -->
+<section class="stats">
+  <div class="wrap">
+    <div class="stats-grid">
+      <div class="stat reveal"><div class="stat-num">99.94%</div><div class="stat-label">过去 90 天可用性</div></div>
+      <div class="stat reveal"><div class="stat-num">86ms</div><div class="stat-label">平均首字延迟（TTFT）</div></div>
+      <div class="stat reveal"><div class="stat-num">42+</div><div class="stat-label">已接入模型数量</div></div>
+      <div class="stat reveal"><div class="stat-num">18 亿</div><div class="stat-label">日均处理 Token 数</div></div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ FEATURES ============ -->
+<section class="block" id="features">
+  <div class="wrap">
+    <div class="sec-head reveal">
+      <span class="sec-eyebrow">为什么选择Keanu</span>
+      <h2 class="sec-title">为开发者而生，而非营销话术</h2>
+      <p class="sec-desc">我们只解决一个问题：让你稳定、便宜、快速地调用大模型。其余的，交给你的产品。</p>
+    </div>
+    <div class="feat-grid">
+      <div class="feat-card reveal">
+        <div class="feat-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="#0a84ff" stroke-width="1.8"><path d="M13 2L3 14h7l-1 8 10-12h-7l1-8z" stroke-linejoin="round"/></svg>
+        </div>
+        <h3>OpenAI 兼容协议</h3>
+        <p>完整兼容 <code style="font-family:'SF Mono',monospace;font-size:13px;background:#fff;padding:1px 5px;border-radius:4px">/v1/chat/completions</code> 接口。已经用 OpenAI SDK？改一行 base_url 即可，业务代码零修改。</p>
+      </div>
+      <div class="feat-card reveal">
+        <div class="feat-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="#0a84ff" stroke-width="1.8"><path d="M12 2v6m0 8v6M2 12h6m8 0h6M5 5l4 4m6 6l4 4M5 19l4-4m6-6l4-4" stroke-linecap="round"/></svg>
+        </div>
+        <h3>智能负载均衡</h3>
+        <p>同一模型对接多个上游通道，自动避开故障与限流节点。请求失败自动重试到健康通道，业务无感知。</p>
+      </div>
+      <div class="feat-card reveal">
+        <div class="feat-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="#0a84ff" stroke-width="1.8"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0110 0v4" stroke-linecap="round"/></svg>
+        </div>
+        <h3>不存储你的数据</h3>
+        <p>请求与响应仅做协议转发，不落库、不训练。密钥采用 AES-256 加密存储，支持 IP 白名单与用量限额。</p>
+      </div>
+      <div class="feat-card reveal">
+        <div class="feat-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="#0a84ff" stroke-width="1.8"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </div>
+        <h3>实时计费明细</h3>
+        <p>每一笔调用的 Token 数、耗时、费用都可追溯。支持按模型、按项目维度聚合，财务对账不再痛苦。</p>
+      </div>
+      <div class="feat-card reveal">
+        <div class="feat-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="#0a84ff" stroke-width="1.8"><path d="M4 4h16v12H4z" stroke-linejoin="round"/><path d="M2 20h20M9 8l3 3 4-5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </div>
+        <h3>完整的可观测性</h3>
+        <p>控制台实时展示 QPS、错误率、延迟分位图。异常自动告警到钉钉、飞书、企业微信，不用盯着看板。</p>
+      </div>
+      <div class="feat-card reveal">
+        <div class="feat-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="#0a84ff" stroke-width="1.8"><path d="M20 12V8a2 2 0 00-2-2h-3l-2-2H7a2 2 0 00-2 2v4" stroke-linejoin="round"/><rect x="3" y="12" width="18" height="8" rx="2"/><path d="M9 16h6" stroke-linecap="round"/></svg>
+        </div>
+        <h3>团队协作</h3>
+        <p>多成员、多令牌、多项目隔离。子令牌可单独设置额度与权限上限，团队扩容时不会失控。</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ MODELS ============ -->
+<section class="block models" id="models">
+  <div class="wrap">
+    <div class="sec-head reveal">
+      <span class="sec-eyebrow">支持模型</span>
+      <h2 class="sec-title">主流模型，一站直达</h2>
+      <p class="sec-desc">下面只列出热门模型，完整列表与实时价格见<a href="#" style="color:var(--blue)">价格页</a>。新模型通常在上游发布 48 小时内接入。</p>
+    </div>
+    <div class="model-grid">
+      <div class="model reveal">
+        <div class="model-top"><div class="model-badge" style="background:#10a37f">G</div><span class="model-tag">推荐</span></div>
+        <div class="model-name">GPT-4o</div>
+        <div class="model-vendor">OpenAI</div>
+        <div class="model-price">输入 <strong>$2.5</strong> / 输出 <strong>$10</strong><br><span style="color:var(--ink-faint)">每百万 Token</span></div>
+      </div>
+      <div class="model reveal">
+        <div class="model-top"><div class="model-badge" style="background:#10a37f">G</div><span class="model-tag">推荐</span></div>
+        <div class="model-name">GPT-4o mini</div>
+        <div class="model-vendor">OpenAI</div>
+        <div class="model-price">输入 <strong>$0.15</strong> / 输出 <strong>$0.6</strong><br><span style="color:var(--ink-faint)">每百万 Token</span></div>
+      </div>
+      <div class="model reveal">
+        <div class="model-top"><div class="model-badge" style="background:#d97757">C</div><span class="model-tag">推荐</span></div>
+        <div class="model-name">Claude 3.5 Sonnet</div>
+        <div class="model-vendor">Anthropic</div>
+        <div class="model-price">输入 <strong>$3</strong> / 输出 <strong>$15</strong><br><span style="color:var(--ink-faint)">每百万 Token</span></div>
+      </div>
+      <div class="model reveal">
+        <div class="model-top"><div class="model-badge" style="background:#d97757">C</div><span class="model-tag beta">200K</span></div>
+        <div class="model-name">Claude 3.5 Haiku</div>
+        <div class="model-vendor">Anthropic</div>
+        <div class="model-price">输入 <strong>$0.8</strong> / 输出 <strong>$4</strong><br><span style="color:var(--ink-faint)">每百万 Token</span></div>
+      </div>
+      <div class="model reveal">
+        <div class="model-top"><div class="model-badge" style="background:#4285f4">◇</div><span class="model-tag">推荐</span></div>
+        <div class="model-name">Gemini 1.5 Pro</div>
+        <div class="model-vendor">Google</div>
+        <div class="model-price">输入 <strong>$1.25</strong> / 输出 <strong>$5</strong><br><span style="color:var(--ink-faint)">每百万 Token</span></div>
+      </div>
+      <div class="model reveal">
+        <div class="model-top"><div class="model-badge" style="background:#4285f4">◇</div><span class="model-tag beta">Flash</span></div>
+        <div class="model-name">Gemini 1.5 Flash</div>
+        <div class="model-vendor">Google</div>
+        <div class="model-price">输入 <strong>$0.075</strong> / 输出 <strong>$0.3</strong><br><span style="color:var(--ink-faint)">每百万 Token</span></div>
+      </div>
+      <div class="model reveal">
+        <div class="model-top"><div class="model-badge" style="background:#000">○</div><span class="model-tag beta">推理</span></div>
+        <div class="model-name">o1 / o1-mini</div>
+        <div class="model-vendor">OpenAI</div>
+        <div class="model-price">输入 <strong>$15</strong> / 输出 <strong>$60</strong><br><span style="color:var(--ink-faint)">每百万 Token</span></div>
+      </div>
+      <div class="model reveal">
+        <div class="model-top"><div class="model-badge" style="background:#ff6a00">画</div><span class="model-tag beta">绘图</span></div>
+        <div class="model-name">DALL·E 3 / SD3</div>
+        <div class="model-vendor">图像生成</div>
+        <div class="model-price">约 <strong>$0.04</strong> / 张<br><span style="color:var(--ink-faint)">按图片张数计费</span></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ PRICING ============ -->
+<section class="block" id="pricing">
+  <div class="wrap">
+    <div class="sec-head reveal">
+      <span class="sec-eyebrow">价格</span>
+      <h2 class="sec-title">透明的按量计费</h2>
+      <p class="sec-desc">没有月费、没有套餐绑定。充值后按实际 Token 用量扣费，与上游官方价格保持一致，支持人民币结算。</p>
+    </div>
+    <div class="price-grid">
+      <div class="price-card reveal">
+        <h4>个人开发者</h4>
+        <p class="pitch">适合个人项目、学习与原型验证。</p>
+        <div class="price-amt">¥0<small> · 注册即用</small></div>
+        <div class="price-unit">无最低充值，赠送 $1 体验额度</div>
+        <ul>
+          <li>全部 42+ 模型可用</li>
+          <li>官方价格，1:1 计费</li>
+          <li>10 个子令牌</li>
+          <li>控制台用量明细</li>
+          <li>社区与工单支持</li>
+        </ul>
+        <a href="#" class="btn btn-ghost">免费注册</a>
+      </div>
+      <div class="price-card featured reveal">
+        <span class="price-tag-pop">最受欢迎</span>
+        <h4>团队版</h4>
+        <p class="pitch">适合小团队与创业公司，多人协作。</p>
+        <div class="price-amt">9<small> 折 · 充值返</small></div>
+        <div class="price-unit">充值 $100 起，享受 9 折</div>
+        <ul>
+          <li>个人版全部功能</li>
+          <li>无限子令牌与项目</li>
+          <li>成员权限分级管理</li>
+          <li>Webhook 与告警推送</li>
+          <li>专属客户群 · 1 小时响应</li>
+          <li>可开具增值税专用发票</li>
+        </ul>
+        <a href="#" class="btn btn-primary">选择团队版</a>
+      </div>
+      <div class="price-card reveal">
+        <h4>企业版</h4>
+        <p class="pitch">适合高并发、高合规要求的客户。</p>
+        <div class="price-amt">定制<small> · 联系销售</small></div>
+        <div class="price-unit">独立通道 · SLA 协议保障</div>
+        <ul>
+          <li>团队版全部功能</li>
+          <li>独享上游通道与配额</li>
+          <li>99.95% SLA 与赔偿条款</li>
+          <li>私有化部署可选</li>
+          <li>专属对接工程师</li>
+          <li>审计日志与合规报告</li>
+        </ul>
+        <a href="#" class="btn btn-ghost">联系销售</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ TRUST ============ -->
+<section class="block trust" id="trust">
+  <div class="wrap">
+    <div class="sec-head reveal" style="margin-bottom:56px">
+      <span class="sec-eyebrow">可靠性</span>
+      <h2 class="sec-title">凌晨三点的故障，也是我们在扛</h2>
+      <p class="sec-desc">我们不承诺永远不出问题，但承诺出问题时你能第一时间知道，且有人处理。</p>
+    </div>
+    <div class="trust-grid">
+      <div class="trust-visual reveal">
+        <h4>实时服务状态</h4>
+        <div class="big">全部正常 · 已运行 184 天</div>
+        <div class="status-row">
+          <div class="status-name"><span class="status-dot"></span>对话补全接口</div>
+          <div class="status-time">86ms</div>
+        </div>
+        <div class="status-row">
+          <div class="status-name"><span class="status-dot"></span>图像生成接口</div>
+          <div class="status-time">2.1s</div>
+        </div>
+        <div class="status-row">
+          <div class="status-name"><span class="status-dot"></span>嵌入向量接口</div>
+          <div class="status-time">41ms</div>
+        </div>
+        <div class="status-row">
+          <div class="status-name"><span class="status-dot"></span>计费与控制台</div>
+          <div class="status-time">正常</div>
+        </div>
+      </div>
+      <div class="trust-points reveal">
+        <ul class="trust-list">
+          <li>
+            <div class="ti"><svg viewBox="0 0 16 16" fill="none" stroke="#0071e3" stroke-width="2"><path d="M3 8.5l3 3 7-7" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+            <div>
+              <div class="tt">多活集群与自动故障转移</div>
+              <div class="td">部署在三个地域，单点故障 30 秒内自动切换，业务无需感知。</div>
+            </div>
+          </li>
+          <li>
+            <div class="ti"><svg viewBox="0 0 16 16" fill="none" stroke="#0071e3" stroke-width="2"><path d="M3 8.5l3 3 7-7" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+            <div>
+              <div class="tt">数据安全合规</div>
+              <div class="td">通过等保三级评测。请求内容不持久化，密钥加密存储，支持 IP 白名单。</div>
+            </div>
+          </li>
+          <li>
+            <div class="ti"><svg viewBox="0 0 16 16" fill="none" stroke="#0071e3" stroke-width="2"><path d="M3 8.5l3 3 7-7" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+            <div>
+              <div class="tt">透明的故障复盘</div>
+              <div class="td">每次事故都会在状态页发布时间线与根因分析，从不删历史记录。</div>
+            </div>
+          </li>
+          <li>
+            <div class="ti"><svg viewBox="0 0 16 16" fill="none" stroke="#0071e3" stroke-width="2"><path d="M3 8.5l3 3 7-7" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+            <div>
+              <div class="tt">真人技术支持</div>
+              <div class="td">7×24 工单，工作时段 15 分钟内首响。没有机器人客服，没有转接黑话。</div>
+            </div>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ CTA ============ -->
+<section class="cta-band">
+  <div class="cta-inner reveal">
+    <h2>现在开始，5 分钟接入</h2>
+    <p>注册即送 $1 体验额度，足够测试数千次调用。</p>
+    <a href="#" class="btn">免费注册 →</a>
+    <div class="sub-note">已有账号？<a href="#" style="color:#fff;text-decoration:underline">直接登录</a></div>
+  </div>
+</section>
+
+<!-- ============ FOOTER ============ -->
+<footer>
+  <div class="foot-grid">
+    <div class="foot-brand">
+      <a href="#" class="brand"><span class="logo">云</span>Keanu API</a>
+      <p>面向开发者的大模型接口聚合服务。稳定、透明、按量计费。</p>
+    </div>
+    <div class="foot-col">
+      <h5>产品</h5>
+      <ul>
+        <li><a href="#features">产品特性</a></li>
+        <li><a href="#models">支持模型</a></li>
+        <li><a href="#pricing">价格</a></li>
+        <li><a href="#">更新日志</a></li>
+        <li><a href="#">服务状态</a></li>
+      </ul>
+    </div>
+    <div class="foot-col">
+      <h5>开发者</h5>
+      <ul>
+        <li><a href="#">API 文档</a></li>
+        <li><a href="#">快速开始</a></li>
+        <li><a href="#">错误码参考</a></li>
+        <li><a href="#">SDK 下载</a></li>
+        <li><a href="#">常见问题</a></li>
+      </ul>
+    </div>
+    <div class="foot-col">
+      <h5>公司</h5>
+      <ul>
+        <li><a href="#">关于我们</a></li>
+        <li><a href="#">联系销售</a></li>
+        <li><a href="#">服务协议</a></li>
+        <li><a href="#">隐私政策</a></li>
+        <li><a href="#">加入我们</a></li>
+      </ul>
+    </div>
+  </div>
+  <div class="foot-bottom">
+    <p>© 2024 Keanu科技有限公司 · 本页面为示例展示</p>
+    <div class="legal">
+      <a href="#">沪 ICP 备 2024xxxxxx 号</a>
+      <a href="#">沪公网安备 31xxxxxx 号</a>
+    </div>
+  </div>
+</footer>
+
+<script>
+  // Scroll reveal
+  const io = new IntersectionObserver((entries)=>{
+    entries.forEach(e=>{
+      if(e.isIntersecting){ e.target.classList.add('in'); io.unobserve(e.target); }
+    });
+  },{threshold:0.12, rootMargin:"0px 0px -40px 0px"});
+  document.querySelectorAll('.reveal').forEach(el=>io.observe(el));
+
+  // Stagger feature/model cards a touch
+  document.querySelectorAll('.feat-grid .reveal, .model-grid .reveal, .price-grid .reveal')
+    .forEach((el,i)=>{ el.style.transitionDelay = (i%4 * 60) + 'ms'; });
+</script>
+</body>
+</html>
